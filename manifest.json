@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "Nitefilter",
-  "description": "This extension allows the user to change the background color of the current page.",
-  "version": "0.1.0",
+  "description": "Make bright websites more comfortable in low light environments.",
+  "version": "0.1.0.1",
 
   "background": {
     "scripts": ["main.js"],
