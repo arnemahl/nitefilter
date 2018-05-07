@@ -1,42 +1,57 @@
+function addBackgroundNode() {
+    var d = document.createElement('div');
+
+    d.setAttribute('class', 'fixed-white-background');
+
+    document.body.appendChild(d);
+}
+
+function addStyles() {
+    var style = document.createElement('style');
+
+    style.innerHTML = `
+        body {
+            transition: filter 2s ease;
+            filter: invert(0.90) sepia(0.6) hue-rotate(-20deg) brightness(0.7);
+        }
+        img {
+            filter: invert(1);
+        }
+        .fixed-white-background {
+            z-index: -1337;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: white;
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+function enableNitefilter() {
+    addBackgroundNode();
+    addStyles();
+}
+
+const functions = [
+    addBackgroundNode,
+    addStyles,
+    enableNitefilter,
+];
+
+function source(functions) {
+    return functions.map(String).join('\n');
+}
+
 function runTheScript() {
     var script = `
         (function() {
-            function addBackgroundNode() {
-                var d = document.createElement('div');
-
-                d.setAttribute('class', 'fixed-white-background');
-
-                document.body.appendChild(d);
-            }
-
-            function addStyles() {
-                var style = document.createElement('style');
-
-                style.innerHTML = \`
-                    body {
-                        transition: filter 2s ease;
-                        filter: invert(0.90) sepia(0.6) hue-rotate(-20deg) brightness(0.7);
-                    }
-                    img {
-                        filter: invert(1);
-                    }
-                    .fixed-white-background {
-                        z-index: -1337;
-                        position: fixed;
-                        top: 0;
-                        right: 0;
-                        bottom: 0;
-                        left: 0;
-                        background-color: white;
-                    }
-                \`;
-
-                document.head.appendChild(style);
-            }
-
-            addBackgroundNode();
-            addStyles();
-        })()
+            ${source(functions)}
+            enableNitefilter();
+        })();
     `;
 
     // See https://developer.chrome.com/extensions/tabs#method-executeScript.
