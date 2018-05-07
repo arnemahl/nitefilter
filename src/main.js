@@ -1,9 +1,10 @@
 function addBackgroundNode() {
-    var d = document.createElement('div');
+    var div = document.createElement('div');
 
-    d.setAttribute('class', 'fixed-white-background');
+    div.setAttribute('class', 'fixed-white-background');
+    div.setAttribute('id', 'nitefilter-background');
 
-    document.body.appendChild(d);
+    document.body.appendChild(div);
 }
 
 function addStyles() {
@@ -27,6 +28,7 @@ function addStyles() {
             background-color: white;
         }
     `;
+    style.setAttribute('id', 'nitefilter-style');
 
     document.head.appendChild(style);
 }
@@ -35,22 +37,45 @@ function enableNitefilter() {
     addBackgroundNode();
     addStyles();
 }
+function disableNitefilter() {
+    document.getElementById('nitefilter-background').remove();
+    document.getElementById('nitefilter-style').remove();
+}
+function isEnabled() {
+    return Boolean(
+        document.getElementById('nitefilter-background') &&
+        document.getElementById('nitefilter-style')
+    );
+}
+
+function toggleNitefilter() {
+    const shouldEnable = !isEnabled();
+
+    if (shouldEnable) {
+        enableNitefilter();
+    } else {
+        disableNitefilter();
+    }
+}
 
 const functions = [
     addBackgroundNode,
     addStyles,
     enableNitefilter,
+    disableNitefilter,
+    isEnabled,
+    toggleNitefilter,
 ];
 
 function source(functions) {
     return functions.map(String).join('\n');
 }
 
-function runTheScript() {
+function onClick() {
     var script = `
         (function() {
             ${source(functions)}
-            enableNitefilter();
+            toggleNitefilter();
         })();
     `;
 
@@ -64,6 +89,4 @@ function runTheScript() {
     });
 }
 
-chrome.browserAction.onClicked.addListener(() => {
-    runTheScript();
-});
+chrome.browserAction.onClicked.addListener(onClick);
