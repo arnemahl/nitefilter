@@ -25,6 +25,10 @@
     "128": "icon/128x128.png"
   },
   "permissions": [
-    "activeTab"
+    "https://*/*",
+    "http://*/*",
+    "background",
+    "tabs",
+    "storage"
   ]
 }

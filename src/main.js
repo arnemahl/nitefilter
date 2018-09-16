@@ -1,92 +1,75 @@
-function addBackgroundNode() {
-    var div = document.createElement('div');
-
-    div.setAttribute('class', 'fixed-white-background');
-    div.setAttribute('id', 'nitefilter-background');
-
-    document.body.appendChild(div);
+const logger = tabId => (...args) => {
+    chrome.tabs.executeScript(tabId, {
+        code: `console.log(${args.map(JSON.stringify).join(', ')})`
+    });
 }
-
-function addStyles() {
-    var style = document.createElement('style');
-
-    style.innerHTML = `
-        body {
-            transition: filter 2s ease;
-            filter: invert(0.90) sepia(0.6) hue-rotate(-20deg) brightness(0.7);
-        }
-        img {
-            filter: invert(1);
-        }
-        .fixed-white-background {
-            z-index: -1337;
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background-color: white;
-        }
-    `;
-    style.setAttribute('id', 'nitefilter-style');
-
-    document.head.appendChild(style);
-}
-
-function enableNitefilter() {
-    addBackgroundNode();
-    addStyles();
-}
-function disableNitefilter() {
-    document.getElementById('nitefilter-background').remove();
-    document.getElementById('nitefilter-style').remove();
-}
-function isEnabled() {
-    return Boolean(
-        document.getElementById('nitefilter-background') &&
-        document.getElementById('nitefilter-style')
-    );
-}
-
-function toggleNitefilter() {
-    const shouldEnable = !isEnabled();
-
-    if (shouldEnable) {
-        enableNitefilter();
-    } else {
-        disableNitefilter();
-    }
-}
-
-const functions = [
-    addBackgroundNode,
-    addStyles,
-    enableNitefilter,
-    disableNitefilter,
-    isEnabled,
-    toggleNitefilter,
-];
-
-function source(functions) {
-    return functions.map(String).join('\n');
-}
-
-function onClick() {
-    var script = `
-        (function() {
-            ${source(functions)}
-            toggleNitefilter();
-        })();
-    `;
-
-    // See https://developer.chrome.com/extensions/tabs#method-executeScript.
-    // chrome.tabs.executeScript allows us to programmatically inject JavaScript
-    // into a page. Since we omit the optional first argument "tabId", the script
-    // is inserted into the active tab of the current window, which serves as the
-    // default.
+function log(...args) {
     chrome.tabs.executeScript({
-        code: script
+        code: `console.log(${args.map(JSON.stringify).join(', ')})`
     });
 }
 
-chrome.browserAction.onClicked.addListener(onClick);
+const files = {
+    enable: {
+        inactive: `src/enable.js`,
+        active: `src/enable-animate.js`,
+    },
+    disable: {
+        inactive: `src/disable.js`,
+        active: `src/disable.js`,
+    },
+};
+
+function injectNitefilter(tab) {
+    chrome.storage.sync.get('isEnabled', (isEnabled) => {
+        const file = isEnabled ? files.enable : files.disable;
+
+        // use inactive aka. no animation
+        chrome.tabs.executeScript(tab.id, { file: file.inactive });
+    });
+}
+
+function toggleEnabledState(cb) {
+    chrome.storage.sync.get('isEnabled', (prev) => {
+        chrome.storage.sync.set({ isEnabled: !prev.isEnabled });
+
+        cb(!prev.isEnabled);
+    });
+}
+function toggleNitefilter() {
+    toggleEnabledState(toBeEnabled => {
+        const file = toBeEnabled ? files.enable : files.disable;
+
+        // Exectute in active tab
+        chrome.tabs.executeScript({ file: file.active });
+
+        // Execute in all inactive tabs
+        chrome.tabs.query({active: false}, (tabs) => {
+            tabs.forEach((tab) => {
+                chrome.tabs.executeScript(tab.id, { file: file.inactive });
+            });
+        });
+    });
+}
+
+chrome.tabs.onCreated.addListener((tab) => {
+    // logger(tab.id)('onCreated');
+    // logger(tab.id)('tab', tab);
+
+    injectNitefilter(tab);
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    // logger(tab.id)('onUpdated');
+    // logger(tab.id)('changeInfo', changeInfo);
+    // logger(tab.id)('tab', tab);
+
+    if (
+        changeInfo.status === 'lading' ||
+        changeInfo.status === 'complete'
+    ) {
+        injectNitefilter(tab);
+    }
+});
+
+chrome.browserAction.onClicked.addListener(toggleNitefilter);
