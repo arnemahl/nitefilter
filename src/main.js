@@ -11,12 +11,13 @@ function log(...args) {
 
 const scripts = {
     enable: {
-        inactive: `{document.body.classList.add('nitefilter-enabled');}`,
-        active: `{document.body.classList.add('nitefilter-transition', 'nitefilter-enabled');}`,
+        instant: `{document.body.classList.add('nitefilter-enabled');}`,
+        smooth: `{document.body.classList.add('nitefilter-transition', 'nitefilter-enabled');}`,
     },
     disable: {
-        inactive: `{document.body.classList.remove('nitefilter-transition', 'nitefilter-enabled');}`,
-        active: `{document.body.classList.remove('nitefilter-transition', 'nitefilter-enabled');}`,
+        instant: `{document.body.classList.remove('nitefilter-transition', 'nitefilter-enabled');}`,
+        smooth: `{document.body.classList.remove('nitefilter-transition', 'nitefilter-enabled');}`,
+        // PS: No support for smooth disabling (...yet?)
     },
 };
 
@@ -29,15 +30,15 @@ function toggleEnabledState(cb) {
 }
 function toggleNitefilter() {
     toggleEnabledState(toBeEnabled => {
-        const script = toBeEnabled ? scripts.enable : scripts.disable;
+        const setMode = toBeEnabled ? scripts.enable : scripts.disable;
 
         // Exectute in active tab
-        chrome.tabs.executeScript({ code: script.active });
+        chrome.tabs.executeScript({ code: setMode.smooth });
 
         // Execute in all inactive tabs
         chrome.tabs.query({active: false, url: ['https://*/*', 'http://*/*']}, (tabs) => {
             tabs.forEach((tab) => {
-                chrome.tabs.executeScript(tab.id, { code: script.inactive });
+                chrome.tabs.executeScript(tab.id, { code: setMode.instant });
             });
         });
     });
