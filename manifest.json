@@ -3,7 +3,7 @@
 
   "name": "Nitefilter",
   "description": "Make bright websites more comfortable in low light environments.",
-  "version": "0.1.0.1",
+  "version": "1.0.0",
 
   "content_scripts": [
     {
