@@ -15,7 +15,8 @@
             body {
                 filter: invert(0.90) sepia(0.6) hue-rotate(-20deg) brightness(0.7);
             }
-            img {
+            img,
+            video {
                 filter: invert(1);
             }
             .fixed-white-background {
