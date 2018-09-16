@@ -5,6 +5,20 @@
   "description": "Make bright websites more comfortable in low light environments.",
   "version": "0.1.0.1",
 
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "src/onPageLoad.js"
+      ],
+      "css": [
+        "src/main.css"
+      ]
+    }
+  ],
   "background": {
     "scripts": [
       "src/main.js"

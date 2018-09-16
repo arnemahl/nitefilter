@@ -1,0 +1,24 @@
+body.nitefilter-transition {
+    transition: filter 2s ease;
+}
+body.nitefilter-enabled {
+    filter: invert(0.90) sepia(0.6) hue-rotate(-20deg) brightness(0.7);
+}
+
+body.nitefilter-enabled img,
+body.nitefilter-enabled video {
+    filter: invert(1);
+}
+
+.fixed-white-background {
+    z-index: -1337;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: transparent;
+}
+body.nitefilter-enabled .fixed-white-background {
+    background-color: white;
+}
