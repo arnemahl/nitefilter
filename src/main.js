@@ -35,7 +35,7 @@ function toggleNitefilter() {
         chrome.tabs.executeScript({ code: script.active });
 
         // Execute in all inactive tabs
-        chrome.tabs.query({active: false}, (tabs) => {
+        chrome.tabs.query({active: false, url: ['https://*/*', 'http://*/*']}, (tabs) => {
             tabs.forEach((tab) => {
                 chrome.tabs.executeScript(tab.id, { code: script.inactive });
             });
