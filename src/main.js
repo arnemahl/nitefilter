@@ -32,8 +32,12 @@ function toggleNitefilter() {
     toggleEnabledState(toBeEnabled => {
         const setMode = toBeEnabled ? scripts.enable : scripts.disable;
 
-        // Exectute in active tab
-        chrome.tabs.executeScript({ code: setMode.smooth });
+        // Exectute in active tabs
+        chrome.tabs.query({active: true, url: ['https://*/*', 'http://*/*']}, (tabs) => {
+            tabs.forEach((tab) => {
+                chrome.tabs.executeScript(tab.id, { code: setMode.smooth });
+            });
+        });
 
         // Execute in all inactive tabs
         chrome.tabs.query({active: false, url: ['https://*/*', 'http://*/*']}, (tabs) => {
