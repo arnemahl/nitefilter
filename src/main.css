@@ -6,7 +6,8 @@ body.nitefilter-enabled {
 }
 
 body.nitefilter-enabled img,
-body.nitefilter-enabled video {
+body.nitefilter-enabled video, {
+body.nitefilter-enabled *[style^="background-image: url"] {
     filter: invert(1);
 }
 
